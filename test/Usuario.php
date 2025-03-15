@@ -6,37 +6,38 @@ use \EZQuery\Query;
 
 class Usuario
 {
-    private $query;
-
-    public function __construct()
+    public function buscar()
     {
-        $this->query = new Query('usuarios');
-    }
-
-    public function listar()
-    {
-        return $this
-            ->query
-            ->select()
-            ->whereNot('ativo', true)
-            ->get();
+        $query = new Query("tb_usuarios");
+        $query->where("name", "value")
+            ->where(column: function ($q) {
+                $q->where("name", "value")
+                  ->where("email", "value", boolean: "OR");
+            }, boolean: "OR");
+        return $query->get();
     }
 
     public function buscarPorId($id)
     {
-        return $this->query->where('id', $id)->findFirstOrDefault();
+        $query = new Query("tb_usuarios");
+        return $query->where('id', $id)->findFirstOrDefault();
     }
 
     public function buscarPorEmail($email)
     {
-        return $this->query->where('email', $email)->findFirstOrDefault();
+        $query = new Query("tb_usuarios");
+        return $query->where('email', $email)->findFirstOrDefault();
     }
 
     public function buscarPorNome($nome)
     {
-        return $this->query->whereLike('nome', "%$nome%")->get();
+        $query = new Query("tb_usuarios");
+        return $query->select(['id', 'name', 'email'])->where('name', $nome)->get();
     }
 }
 
 $usuario = new Usuario();
-print_r($usuario->listar());
+print_r($usuario->buscar() . PHP_EOL);
+print_r($usuario->buscarPorId('2') . PHP_EOL);
+print_r($usuario->buscarPorEmail('test@gmail.com') . PHP_EOL);
+print_r($usuario->buscarPorNome('test name'));
